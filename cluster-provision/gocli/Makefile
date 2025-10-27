@@ -1,8 +1,8 @@
 SHELL := /bin/bash
 
 IMAGES_FILE ?= images.json
-KUBEVIRTCI_IMAGE_REPO ?= quay.io/kubevirtci
-GOARCH ?= $$(uname -m | grep -q s390x && echo s390x || echo amd64)
+KUBEVIRTCI_IMAGE_REPO ?= 127.0.0.1:5000/kubevirtci
+GOARCH ?= riscv64
 
 export GO111MODULE=on
 export GOPROXY=direct
