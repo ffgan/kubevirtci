@@ -145,8 +145,8 @@ function publish_clusters() {
 function build_alpine_container_disk() {
   echo "INFO: build alpine container disk"
   (cd cluster-provision/images/vm-image-builder && ./create-containerdisk.sh alpine-cloud-init)
-  ${CRI_BIN} tag alpine-cloud-init:devel ${TARGET_REPO}/alpine-with-test-tooling-container-disk:${KUBEVIRTCI_TAG}
-  ${CRI_BIN} tag alpine-cloud-init:devel ${TARGET_KUBEVIRT_REPO}/alpine-with-test-tooling-container-disk:devel
+  # ${CRI_BIN} tag alpine-cloud-init:devel ${TARGET_REPO}/alpine-with-test-tooling-container-disk:${KUBEVIRTCI_TAG}
+  # ${CRI_BIN} tag alpine-cloud-init:devel ${TARGET_KUBEVIRT_REPO}/alpine-with-test-tooling-container-disk:devel
 }
 
 function push_alpine_container_disk() {
@@ -194,41 +194,42 @@ publish_manifest() {
 }
 
 function main() {
-  if [ "$PHASES" == "linux" ]; then
-    publish_node_base_image
-    if [ $ARCH == "s390x" ]; then
-      publish_manifest "centos9" $KUBEVIRTCI_TAG
-    elif [ $ARCH == "amd64" ]; then
-      echo "${TARGET_REPO}/centos9:${KUBEVIRTCI_TAG}" > cluster-provision/k8s/base-image
-    fi
-    exit 0
-  fi
+  build_alpine_container_disk
+  # if [ "$PHASES" == "linux" ]; then
+  #   publish_node_base_image
+  #   if [ $ARCH == "s390x" ]; then
+  #     publish_manifest "centos9" $KUBEVIRTCI_TAG
+  #   elif [ $ARCH == "amd64" ]; then
+  #     echo "${TARGET_REPO}/centos9:${KUBEVIRTCI_TAG}" > cluster-provision/k8s/base-image
+  #   fi
+  #   exit 0
+  # fi
 
-  build_gocli
-  run_provision_manager
-  publish_clusters
-  for i in "${IMAGES_TO_BUILD[@]}"; do
-    if [ $ARCH == "s390x" ]; then
-      echo "INFO: publish manifests of $i"
-      publish_manifest k8s-$i $KUBEVIRTCI_TAG
-      publish_manifest k8s-$i ${KUBEVIRTCI_TAG}-slim
-    fi
-  done
+  # build_gocli
+  # run_provision_manager
+  # publish_clusters
+  # for i in "${IMAGES_TO_BUILD[@]}"; do
+  #   if [ $ARCH == "s390x" ]; then
+  #     echo "INFO: publish manifests of $i"
+  #     publish_manifest k8s-$i $KUBEVIRTCI_TAG
+  #     publish_manifest k8s-$i ${KUBEVIRTCI_TAG}-slim
+  #   fi
+  # done
   
-  # Currently the underlying build tool alpine-make-vm-image supports only x86_64 and aarch64
-  # Disable alpine container disk publish - see https://github.com/kubevirt/kubevirtci/issues/1336
-  #if [ $ARCH == "amd64" ]; then
-  #  publish_alpine_container_disk
-  #fi
+  # # Currently the underlying build tool alpine-make-vm-image supports only x86_64 and aarch64
+  # # Disable alpine container disk publish - see https://github.com/kubevirt/kubevirtci/issues/1336
+  # #if [ $ARCH == "amd64" ]; then
+  # #  publish_alpine_container_disk
+  # #fi
 
-  push_gocli
-  if [ $ARCH == "s390x" ]; then
-    publish_manifest "gocli" $KUBEVIRTCI_TAG
-  fi
+  # push_gocli
+  # if [ $ARCH == "s390x" ]; then
+  #   publish_manifest "gocli" $KUBEVIRTCI_TAG
+  # fi
 
-  if [ $ARCH == "amd64" ]; then
-    create_git_tag
-  fi
+  # if [ $ARCH == "amd64" ]; then
+  #   create_git_tag
+  # fi
 }
 
 main "$@"
