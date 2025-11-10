@@ -1,0 +1,7 @@
+FROM alpine:latest
+RUN apk update
+# alpine的rv64尚未支持linux-virt，仅有linux-lts
+RUN apk add linux-virt
+RUN apk add openrc
+RUN chown -R 107:107 /boot/initramfs-virt /boot/vmlinuz-virt 
+
